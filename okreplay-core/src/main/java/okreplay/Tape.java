@@ -61,4 +61,6 @@ public interface Tape {
    * otherwise.
    */
   boolean isDirty();
+
+  void start();
 }

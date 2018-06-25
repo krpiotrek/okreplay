@@ -84,6 +84,7 @@ class MultiThreadedTapeAccessSpec extends Specification {
   void "each recorded response is used by just one thread when using sequential mode"() {
     given:
     tape.mode = WRITE_SEQUENTIAL
+    tape.start()
 
     and: "a number of requests"
     List<RecordedRequest> requests = (0..<threads).collect { i ->

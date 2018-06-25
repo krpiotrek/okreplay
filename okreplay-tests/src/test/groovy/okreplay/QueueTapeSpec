@@ -1,0 +1,130 @@
+package okreplay
+
+import groovy.json.JsonSlurper
+import okhttp3.MediaType
+import okhttp3.RequestBody
+import spock.lang.Shared
+import spock.lang.Specification
+
+import static com.google.common.net.MediaType.JSON_UTF_8
+import static java.net.HttpURLConnection.*
+import static okreplay.TapeMode.READ_QUEUE
+
+class QueueTapeSpec extends Specification {
+
+    static
+    final TAPE_ROOT = new File(SequentialTapeSpec.getResource("/okreplay/tapes").toURI())
+    @Shared
+    def tapeLoader = new YamlTapeLoader(TAPE_ROOT)
+
+    void "read queue tapes play back recordings in correct sequence"() {
+        given: "a tape in read-sequential mode"
+        def tape = tapeLoader.loadTape("queue tape")
+        tape.mode = READ_QUEUE
+        tape.start()
+
+        when: "the tape is read multiple times"
+        List<RecordedResponse> responses = []
+        n.times {
+            responses << tape.play(request)
+        }
+
+        then: "each read succeeds"
+        responses.every {
+            it.code() == HTTP_OK
+        }
+
+        and: "each has different content"
+        responses.collect { it.bodyAsText() } == (1..n).collect {
+            "count: $it"
+        }
+
+        where:
+        n = 2
+        request = new RecordedRequest.Builder()
+                .url("http://freeside.co/betamax")
+                .build()
+    }
+
+    void "read queue tapes return an error if more than the expected number of requests are made"() {
+        given: "a tape in read-sequential mode"
+        def tape = tapeLoader.loadTape("queue tape")
+        tape.mode = READ_QUEUE
+        tape.start()
+
+        and: "all recorded requests have already been played"
+        n.times {
+            tape.play(request)
+        }
+
+        when: "the tape is read again"
+        tape.play(request)
+
+        then: "an exception is thrown"
+        thrown IndexOutOfBoundsException
+
+        where:
+        n = 2
+        request = new RecordedRequest.Builder()
+                .url("http://freeside.co/betamax")
+                .build()
+    }
+
+    void "can read queue responses from tapes with other content out of order"() {
+        given: "a tape in read-sequential mode"
+        def tape = tapeLoader.loadTape("rest conversation tape")
+        tape.mode = READ_QUEUE
+        tape.start()
+
+        and: "several sequential requests"
+        def getRequest = new RecordedRequest.Builder()
+                .url(url)
+                .build()
+
+        when: "the requests are played back in sequence"
+        List<RecordedResponse> responses = []
+        responses << tape.play(getRequest)
+        responses << tape.play(getRequest)
+
+        then: "all play back successfully"
+        responses.code == [HTTP_NOT_FOUND, HTTP_OK]
+
+        and: "the correct data is played back"
+        new JsonSlurper().parseText(responses[1].bodyAsText()).name == "foo"
+
+        where:
+        url = "http://freeside.co/thing/1"
+    }
+
+    void "can read queue responses from tapes with other content in order"() {
+        given: "a tape in read-sequential mode"
+        def tape = tapeLoader.loadTape("rest conversation tape")
+        tape.mode = READ_QUEUE
+        tape.start()
+
+        and: "several sequential requests"
+        def getRequest = new RecordedRequest.Builder()
+                .url(url)
+                .build()
+        def postRequest = new RecordedRequest.Builder()
+                .method("POST", RequestBody.create(MediaType.parse(JSON_UTF_8.toString()),
+                '{"name":"foo"}'))
+                .url(url)
+                .build()
+
+        when: "the requests are played back in sequence"
+        List<RecordedResponse> responses = []
+        responses << tape.play(getRequest)
+        responses << tape.play(postRequest)
+        responses << tape.play(getRequest)
+
+        then: "all play back successfully"
+        responses.code == [HTTP_NOT_FOUND, HTTP_CREATED, HTTP_OK]
+
+        and: "the correct data is played back"
+        new JsonSlurper().parseText(responses[2].bodyAsText()).name == "foo"
+
+        where:
+        url = "http://freeside.co/thing/1"
+    }
+}

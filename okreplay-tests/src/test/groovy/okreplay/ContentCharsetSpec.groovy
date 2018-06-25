@@ -80,6 +80,7 @@ interactions:
     body: \u00a3
 """
     def tape = loader.readFrom(new StringReader(yaml))
+    tape.start()
 
     and:
     def request = new RecordedRequest.Builder()

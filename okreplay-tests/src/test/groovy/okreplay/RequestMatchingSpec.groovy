@@ -50,6 +50,7 @@ interactions:
 
     and:
     def tape = loader.readFrom(new StringReader(yaml))
+    tape.start()
 
     when:
     def response = tape.play(request)
@@ -90,6 +91,7 @@ interactions:
     and:
     def tape = loader.readFrom(new StringReader(yaml))
     tape.matchRule = MatchRules.host
+    tape.start()
 
     when:
     def request = new RecordedRequest.Builder()
@@ -136,6 +138,7 @@ interactions:
     and:
     def tape = loader.readFrom(new StringReader(yaml))
     tape.matchRule = ComposedMatchRule.of(MatchRules.method, MatchRules.uri, MatchRules.accept)
+    tape.start()
 
     when:
     def request = new RecordedRequest.Builder()
