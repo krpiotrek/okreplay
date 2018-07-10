@@ -13,13 +13,13 @@ import javax.annotation.Nullable;
 
 import static okreplay.Util.stringify;
 
-class QueueInteractionsMode implements InteractionsMode {
+class QueueInteractionsReadMode implements InteractionsMode {
 
     private List<YamlRecordedInteraction> interactions;
     private final MatchRule matchRule;
     private final LinkedHashMap<Request, Deque<RecordedInteraction>> map = new LinkedHashMap<>();
 
-    QueueInteractionsMode(List<YamlRecordedInteraction> interactions, MatchRule matchRule) {
+    QueueInteractionsReadMode(List<YamlRecordedInteraction> interactions, MatchRule matchRule) {
         this.interactions = interactions;
         this.matchRule = matchRule;
         createMap();
@@ -92,6 +92,6 @@ class QueueInteractionsMode implements InteractionsMode {
 
     @Override
     public void record(RecordedInteraction interaction) {
-        interactions.add(interaction.toYaml());
+        throw new RuntimeException("recording should not happen in READ mode");
     }
 }

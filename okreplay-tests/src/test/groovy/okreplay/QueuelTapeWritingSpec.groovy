@@ -4,29 +4,26 @@ import com.google.common.io.Files
 import okhttp3.MediaType
 import okhttp3.ResponseBody
 import spock.lang.AutoCleanup
-import spock.lang.Issue
 import spock.lang.Shared
 import spock.lang.Specification
 
 import static java.net.HttpURLConnection.HTTP_OK
-import static okreplay.TapeMode.WRITE_SEQUENTIAL
+import static okreplay.TapeMode.WRITE_QUEUE
 
-@Issue([
-    "https://github.com/robfletcher/betamax/issues/7",
-    "https://github.com/robfletcher/betamax/pull/70"
-])
-class SequentialTapeWritingSpec extends Specification {
+class QueuelTapeWritingSpec extends Specification {
   @Shared @AutoCleanup("deleteDir") def tapeRoot = Files.createTempDir()
   @Shared def tapeLoader = new YamlTapeLoader(tapeRoot)
   MemoryTape tape
 
   void setup() {
-    tape = tapeLoader.loadTape("sequential tape")
-    tape.mode = WRITE_SEQUENTIAL
+    def fileName = "queue_tape.yaml"
+    Files.copy(new File(getClass().classLoader.getResource("okreplay/tapes/" + fileName).getFile()), new File(tapeRoot.getAbsolutePath() + "/" + fileName))
+    tape = tapeLoader.loadTape("queue tape")
+    tape.mode = WRITE_QUEUE
     tape.start()
   }
 
-  void "write sequential tapes record multiple matching responses"() {
+  void "write queue tapes record multiple matching responses"() {
     when: "multiple responses are captured from the same endpoint"
     (1..n).each {
       def response = new RecordedResponse.Builder()

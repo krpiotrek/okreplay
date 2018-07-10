@@ -25,6 +25,7 @@ class SequentialTapeSpec extends Specification {
     given: "a tape in read-sequential mode"
     def tape = tapeLoader.loadTape("sequential tape")
     tape.mode = READ_SEQUENTIAL
+    tape.start()
 
     when: "the tape is read multiple times"
     List<RecordedResponse> responses = []
@@ -54,6 +55,7 @@ class SequentialTapeSpec extends Specification {
     given: "a tape in read-sequential mode"
     def tape = tapeLoader.loadTape("sequential tape")
     tape.mode = READ_SEQUENTIAL
+    tape.start()
 
     and: "all recorded requests have already been played"
     n.times {
@@ -77,6 +79,7 @@ class SequentialTapeSpec extends Specification {
     given: "a tape in read-sequential mode"
     def tape = tapeLoader.loadTape("rest conversation tape")
     tape.mode = READ_SEQUENTIAL
+    tape.start()
 
     and: "several sequential requests"
     def getRequest = new RecordedRequest.Builder()
@@ -109,6 +112,7 @@ class SequentialTapeSpec extends Specification {
     given: "a tape in read-sequential mode"
     def tape = tapeLoader.loadTape("rest conversation tape")
     tape.mode = READ_SEQUENTIAL
+    tape.start()
 
     and: "the first interaction is played back"
     tape.play(request)
