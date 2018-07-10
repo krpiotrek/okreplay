@@ -1,11 +1,15 @@
 package okreplay;
 
-import java.util.ArrayList;
 import java.util.List;
 
 class QueueInteractionsWriteMode implements InteractionsMode {
 
-    private List<YamlRecordedInteraction> interactions = new ArrayList<>();
+    private List<YamlRecordedInteraction> interactions;
+
+    public QueueInteractionsWriteMode(List<YamlRecordedInteraction> interactions) {
+        this.interactions = interactions;
+        this.interactions.clear();
+    }
 
     @Override
     public int size() {

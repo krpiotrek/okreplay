@@ -73,7 +73,7 @@ abstract class MemoryTape implements Tape {
       interactionsMode = new SequentialInteractionsMode(interactions, matchRule);
     } else if (mode.isQueued()) {
       if (mode.isWritable()) {
-        interactionsMode = new QueueInteractionsWriteMode();
+        interactionsMode = new QueueInteractionsWriteMode(interactions);
       } else {
         interactionsMode = new QueueInteractionsReadMode(interactions, matchRule);
       }
