@@ -1,18 +1,20 @@
 package okreplay;
 
 public enum TapeMode {
-  UNDEFINED(false, false, false), READ_WRITE(true, true, false), READ_ONLY(true, false, false),
-  READ_ONLY_QUIET(true, false, false), READ_SEQUENTIAL(true, false, true), WRITE_ONLY(false,
-      true, false), WRITE_SEQUENTIAL(false, true, true);
+
+  UNDEFINED(false, false, OrderingMode.SINGLE), READ_WRITE(true, true, OrderingMode.SINGLE), READ_ONLY(true, false, OrderingMode.SINGLE),
+  READ_ONLY_QUIET(true, false, OrderingMode.SINGLE), READ_SEQUENTIAL(true, false, OrderingMode.SEQUENTIAL),
+  WRITE_ONLY(false, true, OrderingMode.SINGLE), WRITE_SEQUENTIAL(false, true, OrderingMode.SEQUENTIAL),
+  WRITE_QUEUE(false, true, OrderingMode.QUEUE), READ_QUEUE(true, false, OrderingMode.QUEUE);
 
   private final boolean readable;
   private final boolean writable;
-  private final boolean sequential;
+  private final OrderingMode orderingMode;
 
-  TapeMode(boolean readable, boolean writable, boolean sequential) {
+  TapeMode(boolean readable, boolean writable, OrderingMode orderingMode) {
     this.readable = readable;
     this.writable = writable;
-    this.sequential = sequential;
+    this.orderingMode = orderingMode;
   }
 
   public boolean isReadable() {
@@ -23,8 +25,8 @@ public enum TapeMode {
     return writable;
   }
 
-  public boolean isSequential() {
-    return sequential;
+  public OrderingMode getOrderingMode() {
+    return orderingMode;
   }
 
   /**
@@ -40,5 +42,17 @@ public enum TapeMode {
     } else {
       return Optional.of(this);
     }
+  }
+
+  public boolean isSequential() {
+    return orderingMode == OrderingMode.SEQUENTIAL;
+  }
+
+  public boolean isQueued() {
+    return orderingMode == OrderingMode.QUEUE;
+  }
+
+  public enum OrderingMode {
+    SINGLE, SEQUENTIAL, QUEUE
   }
 }

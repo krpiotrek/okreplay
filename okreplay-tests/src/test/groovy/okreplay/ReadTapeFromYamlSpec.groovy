@@ -33,6 +33,7 @@ interactions:
 """
     when:
     def tape = loader.readFrom(new StringReader(yaml))
+    tape.start()
     def utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
     utc.set(2011, 7, 23, 22, 41, 40)
     utc.set(Calendar.MILLISECOND, 0)
@@ -76,6 +77,7 @@ interactions:
 """
     when:
     def tape = loader.readFrom(new StringReader(yaml))
+    tape.start()
 
     then:
     tape.interactions.size() == 2
@@ -105,6 +107,7 @@ interactions:
 """
     when:
     def tape = loader.readFrom(new StringReader(yaml))
+    tape.start()
 
     then:
     tape.interactions[0].request.header(ACCEPT_LANGUAGE) == "en-GB,en"
